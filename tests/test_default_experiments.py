@@ -47,16 +47,16 @@ class TestDefaultExperiments():
                 continue
             log.info("Starting experiment:", name)
             if os.path.exists('.\\venv\\Scripts\\Activate'):
-                venv_path = '.\\venv\\Scripts\\Activate'
+                venv_path = '.\\venv\\Scripts\\Activate &&'
                 prefix = ['cmd', '/c']
             elif os.path.exists('.\\venv\\bin\\activate'):
-                venv_path = '.\\venv\\bin\\activate'
+                venv_path = '.\\venv\\bin\\activate &&'
                 prefix = ["source"]
             else:
                 venv_path = ""
-                prefix = ["source"]
+                prefix = [""]
 
-            result = subprocess.run( prefix + [f'{venv_path} && python', 
+            result = subprocess.run( prefix + [f'{venv_path} python', 
                                     'run.py', "-e", name], 
                                     shell=True,
                                     capture_output=True, 
@@ -64,4 +64,3 @@ class TestDefaultExperiments():
             log.info("Finished experiment")
 
             assert result.returncode == 0
-
