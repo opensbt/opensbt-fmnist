@@ -27,6 +27,7 @@ jobs:
         run: |
           echo "Executing tests..."
           pytest ./tests/test_experiments.py
+          pytest ./tests/test_default_experiments.py
 
   deploy:
     runs-on: ubuntu-latest
