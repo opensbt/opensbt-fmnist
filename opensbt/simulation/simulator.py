@@ -18,28 +18,49 @@ class SimulationOutput(object):
     """
         Class represents data output after execution of a simulation. An example JSON representation of a SimulationOutput instance is:
 
-        {
-            "simTime" : 3,
-            "times": [1.0,2.0,3.0],
-            "location": { 
-                        "ego" : [(1,1),(2,2),(3,3)],
-                        "adversary" : [(4,1),(4,2),(4,3)
-                        },
-            "velocity": { 
-                        "ego" : [0.5,0.5,0.5],
-                        "adversary" : [0.9,0.9,0.9],
-                        },
-            "collisions": [],
-            "actors" : {
-                        1: "ego",
-                        2: "adversary"
-                        },
-            "otherParams" : {
-                "isCollision": False
-            },
-            ...
+    {
+        "simTime": 10,  // Simulation time
+        "times": [0.0, 0.1, 0.2, ... , 10.0 ], // Time steps; delta is not predefined
+        "location": {
+            "ego": [
+                [0.0, 0.0], [0.1, 0.1],  ...  // x,y positions for each time step
+            ],
+            "adversary": [
+                [10.0, 0.0], [9.9, 0.1],  ... 
+            ]
+        },
+        "velocity": {
+            "ego": [  
+                [1,1,0], [1,1,0], ...   // velocity vector for each time step
+            "adversary": [
+                [0,1,0], [0, 1, 1], ...
+            ]
+        },
+        "speed": {
+            "ego": [1.4, 1.4, ... ], // magnitude of velocity vector (known as "speed") for each time step
+            "adversary": [1, 1, ... ]
+        },
+        "acceleration": {
+            "ego": [0.1, 0, ...],
+            "adversary": [0.05, 0, ...]
+        },
+        "yaw": {                     // heading in rad for each time step
+            "ego": [0.5, 0.5, ...],
+            "adversary": [0.2, 0.2, ...]
+        },
+        "collisions": [              // actor ids with timesteps if any collisions
+        ],
+        "actors": {                  // type of actors mapped to ids; the actor types "ego" and "adversary" have to be assigned
+            "ego": "ego",
+            "adversary": "adversary",
+            "vehicles": [],
+            "pedestrians": []
+        },
+        "otherParams": {              // store custom data
+            "car_width" : 3,
+            "car_length" : 5
         }
-            
+    } 
     """
     simTime: float
     times: List
