@@ -127,11 +127,11 @@ class FitnessMinDistanceVelocityFrontOnly(Fitness):
 class FitnessMinTTC(Fitness):
     @property
     def min_or_max(self):
-        return "min"
+        return "min",
 
     @property
     def name(self):
-        return "Min TTC"
+        return "Min TTC",
 
     def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         all_ttc = []

@@ -8,7 +8,7 @@ RESULTS_FOLDER = os.sep + "results" + os.sep
 WRITE_ALL_INDIVIDUALS = True
 LOG_FILE = "." + os.sep + "log.txt"
 BACKUP_FOLDER = "backup"
-EXPERIMENTAL_MODE = False
+EXPERIMENTAL_MODE = True
 
 # analysis module
 N_CELLS = 10
@@ -42,3 +42,6 @@ DEFAULT_CAR_WIDTH = 1.8
 DEFAULT_PEDESTRIAN_SIZE = 0.4
 
 DEFAULT_TRACE_INTERVAL = 0.25 # in seconds
+
+DUPLICATE_COMP_PRECISION = 8
+OUTPUT_PRECISION = 8

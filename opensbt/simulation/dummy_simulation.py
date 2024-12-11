@@ -6,6 +6,9 @@ import numpy as np
 from random import random
 from opensbt.utils import geometric
 import json
+from datetime import datetime
+import csv
+import os
 
 class DummySimulator(Simulator):
     """ 
@@ -18,7 +21,18 @@ class DummySimulator(Simulator):
     time_step = 1
     DETECTION_THRESH = 2     # threshold in meters where other actors can be detected
     RANDOMNESS_BIAS = 0.1    # noise to be added to positions
+    ## Simulates a set of scenarios and returns the output
+    archive = {}
+    now = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
     
+    @staticmethod
+    def ind_in_archive(ind):
+        """ Checks if individual is in the archive of individuals."""
+        if tuple(ind) in DummySimulator.archive:
+            return True
+        else:
+            return False
+        
     @staticmethod
     def simulate(list_individuals: List[Individual], 
                  variable_names: List[str], 
@@ -51,13 +65,23 @@ class DummySimulator(Simulator):
             A list of simulation outputs for each individual in the input list.
         """
         results = []
-        for ind in list_individuals:
-            simout = DummySimulator.simulate_single(ind, 
-                                                    variable_names, 
-                                                    filepath=scenario_path, 
-                                                    sim_time=sim_time,
-                                                    time_step=time_step)
-            results.append(simout)
+
+        for ind in list_individuals:      
+            ################## duplicate simulation avoidance    
+            if not DummySimulator.ind_in_archive(ind): 
+                # with open(os.getcwd() + os.sep + f'simulated_inds_{DummySimulator.now}.csv', mode = 'a+') as f:
+                #     write_to = csv.writer(f)
+                #     write_to.writerow([ind])
+
+                # f.close()
+                simout = DummySimulator.simulate_single(ind, 
+                                                        variable_names, 
+                                                        filepath=scenario_path, 
+                                                        sim_time=sim_time,
+                                                        time_step=time_step)
+            else:
+                simout = DummySimulator.archive[tuple(ind)]
+            results.append(simout)                
         return results
 
     @staticmethod

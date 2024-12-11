@@ -38,29 +38,29 @@ class SimulationResult(Result):
             hist_X = None
         return n_evals, hist_X
     
-    """" Identifies the iteration number when the first critical solutions was found """
     def get_first_critical(self):
+        """ Identifies the iteration number when the first critical solutions was found """
+
         hist = self.history
+        archive = self.obtain_archive()
         res = Population() 
-        iter = 0
-        if hist is not None:
-            for algo in hist:
-                iter += 1
+        if hist is not None and archive is not None:
+            for index, algo in enumerate(hist):
                 #n_evals.append(algo.evaluator.n_eval)  # store the number of function evaluations
-                opt = algo.opt  # retrieve the optimum from the algorithm
-                crit = np.where((opt.get("CB"))) [0] 
-                feas = np.where((opt.get("feasible"))) [0] 
+                inds = archive[:algo.evaluator.n_eval]
+                crit = np.where((inds.get("CB"))) [0] 
+                feas = np.where((inds.get("feasible"))) [0] 
                 feas = list(set(crit) & set(feas))
-                res = opt[feas]
+                res = inds[feas]
                 if len(res) == 0:
                     continue
                 else:
-                    return iter, res
+                    return index, res
         return 0, res
     
-    """" Returns the set of test inputs over all genreation based on feasibility and criticality 
-    according to number of function evaluations"""
     def obtain_history(self, critical=False):
+        """ Returns the set of test inputs over all genreation based on feasibility and criticality 
+        according to number of function evaluations"""
         hist = self.history
         if hist is not None:
             n_evals = []  # corresponding number of function evaluations
@@ -80,18 +80,73 @@ class SimulationResult(Result):
             hist_F = None
         return n_evals, hist_F
     
-    """" Returns all test inputs over all generations """
     def obtain_all_population(self):
+        """ Returns all test inputs over all generations """
         all_population = Population()
         hist = self.history
         if hist is not None:
             for generation in hist:
                 all_population = Population.merge(all_population, generation.pop)
         return all_population
+      
+    def obtain_archive(self):
+        """ Returns all archived individuals. """
+        return self.archive
     
-    """" Returns the set of test inputs over all generations based on feasibility and criticality 
-    according to number of function evaluations (aggregated)"""
-    def obtain_history_hitherto(self,critical=False, optimal=True, var = "F"):
+    def obtain_history_archive(self, critical=False):
+        """ Returns all archived test inputs over all generations """
+        hist = self.history
+        archive = self.obtain_archive()
+        if hist is not None:
+            n_evals = []  # corresponding number of function evaluations
+            hist_F = []  # the objective space values in each generation
+            n_eval_last = 0
+            for i, algo in enumerate(hist):
+                n_eval = algo.evaluator.n_eval - n_eval_last # get the number of evals for the current iteration
+                n_evals.append(n_eval)  # store the number of function evaluations
+                inds = archive[n_eval_last : algo.evaluator.n_eval]
+                if critical:
+                    crit = np.where((inds.get("CB"))) [0] 
+                    feas = np.where((inds.get("feasible"))) [0] 
+                    feas = list(set(crit) & set(feas))
+                else:
+                    feas = np.where(inds.get("feasible"))[0]  # filter out only the feasible and append and objective space values
+                hist_F.append(inds.get("F")[feas])
+                # update for next calculation
+                n_eval_last = algo.evaluator.n_eval
+        else:
+            n_evals = None
+            hist_F = None
+        return n_evals, hist_F
+        
+    def obtain_history_hitherto_archive(self,critical=False, optimal=True, var = "F"):
+        """ Returns the set of test inputs over all generations based on feasibility and criticality 
+        according to number of function evaluations considering all evaluated test inputs (aggregated)"""
+        hist = self.history
+        n_evals = []  # corresponding number of function evaluations
+        hist_F = []  # the objective space values in each generation
+        archive = self.obtain_archive()
+        all = Population()
+        for i, algo in enumerate(hist):
+            n_eval = algo.evaluator.n_eval
+            n_evals.append(n_eval)
+            all = archive[:n_eval]
+            if optimal:
+                all = get_nondominated_population(all)
+            
+            if critical:
+                crit = np.where((all.get("CB"))) [0] 
+                feas = np.where((all.get("feasible")))[0] 
+                feas = list(set(crit) & set(feas))
+            else:
+                feas = np.where(all.get("feasible"))[0]  # filter out only the feasible and append and objective space values
+            hist_F.append(all.get(var)[feas])
+        return n_evals, hist_F
+
+    def obtain_history_hitherto(self,critical=False, optimal=True, var = "F"):   
+        """ Returns the set of test inputs over all generations based on feasibility and criticality 
+        according to number of function evaluations (aggregated)"""
+    
         hist = self.history
         n_evals = []  # corresponding number of function evaluations
         hist_F = []  # the objective space values in each generation
@@ -151,7 +206,7 @@ class SimulationResult(Result):
         # visualizer.convergence_analysis(self, save_folder)
         # visualizer.hypervolume_analysis(self, save_folder)
         # visualizer.spread_analysis(self, save_folder)
-        
+        visualizer.write_generations(self, save_folder)
         visualizer.write_calculation_properties(self,save_folder,algorithm_name, algorithm_parameters=params)
         visualizer.design_space(self, save_folder)
         visualizer.objective_space(self, save_folder)

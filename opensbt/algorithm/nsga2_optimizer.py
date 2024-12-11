@@ -9,6 +9,9 @@ from pymoo.termination import get_termination
 from opensbt.algorithm.optimizer import Optimizer
 from opensbt.experiment.search_configuration import SearchConfiguration
 from opensbt.model_ga.result import *
+from pymoo.util.archive import MultiObjectiveArchive
+
+from opensbt.utils.archive import MemoryArchive
 
 class NsgaIIOptimizer(Optimizer):
     """ This optimizer class provides the NSGA-II algorithm which is already implemented in pymoo.
@@ -43,9 +46,10 @@ class NsgaIIOptimizer(Optimizer):
             sampling = select_operator("init", config),
             crossover = select_operator("cx", config),
             mutation = select_operator("mut", config),
-            eliminate_duplicates = select_operator("dup", config)
+            eliminate_duplicates = select_operator("dup", config),
+            archive=MemoryArchive()
         )
-        
+
         ''' Prioritize max search time over set maximal number of generations'''
         if config.maximal_execution_time is not None:
             self.termination = get_termination("time", config.maximal_execution_time)

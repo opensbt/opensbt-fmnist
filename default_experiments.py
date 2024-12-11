@@ -6,7 +6,6 @@ from opensbt.problem.pymoo_test_problem import PymooTestProblem
 from opensbt.experiment.experiment_store import *
 from opensbt.algorithm.algorithm import *
 from opensbt.evaluation.critical import *
-
 #########################################
 ### Carla Examples,  ego speed is in km/h
 ##################################
@@ -110,12 +109,13 @@ def getExp2() -> Experiment:
         critical_function=CriticalBnhDivided())
 
     config = DefaultSearchConfiguration()
-    config.maximal_execution_time = "00:00:01"
+    # config.maximal_execution_time = "00:00:01"
     config.n_generations = 10
     config.population_size = 10
+    config.inner_num_gen = 5
     experiment = Experiment(name="2",
                             problem=problem,
-                            algorithm=AlgorithmType.NSGAII,
+                            algorithm=AlgorithmType.NSGAII_DT,
                             search_configuration=config)
 
     return experiment
@@ -131,7 +131,9 @@ def getExp4() -> Experiment:
         critical_function=CriticalRastrigin())
 
     config = DefaultSearchConfiguration()
-    config.maximal_execution_time = "00:00:01"
+    # config.maximal_execution_time = "00:00:01"
+    config.population_size = 10
+    config.n_generations = 10
     experiment = Experiment(name="4",
                             problem=problem,
                             algorithm=AlgorithmType.PSO,
@@ -185,8 +187,8 @@ def getExp5() -> Experiment:
                           sampling_time=0.25
                           )
     config = DefaultSearchConfiguration()
-    config.population_size = 50
-    config.n_generations = 20
+    config.population_size = 20
+    config.n_generations = 50
     experiment = Experiment(name="5",
                             problem=problem,
                             algorithm=AlgorithmType.NSGAII,

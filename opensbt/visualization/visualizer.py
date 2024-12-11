@@ -27,9 +27,10 @@ import shutil
 from opensbt.visualization.visualization3d import visualize_3d
 from opensbt.visualization import scenario_plotter
 from opensbt.config import BACKUP_FOLDER, CONSIDER_HIGH_VAL_OS_PLOT,  \
-                           PENALTY_MAX, PENALTY_MIN, \
-                           LAST_ITERATION_ONLY_DEFAULT \
-                               
+                            PENALTY_MAX, PENALTY_MIN, WRITE_ALL_INDIVIDUALS, \
+                                METRIC_PLOTS_FOLDER, LAST_ITERATION_ONLY_DEFAULT, \
+                                OUTPUT_PRECISION
+
 """This module provides functions for the output and presentation of results."""
 
 def create_save_folder(problem: Problem, results_folder: str, algorithm_name: str, is_experimental=False):
@@ -104,11 +105,11 @@ def get_pop_using_mode(res: Result, mode: str):
     inds = Population()
     # print(f"mode: {mode}")
     if mode == "all":
-        inds = res.obtain_all_population()
+        inds = res.obtain_archive()
     elif mode == "opt":
         inds = res.opt
     elif mode == "crit":
-        all = res.obtain_all_population()
+        all = res.obtain_archive()
         inds, _ = all.divide_critical_non_critical()
     else:
         print("Mode is not accepted. Accepted modes are: all, opt, crit.")
@@ -197,7 +198,7 @@ def create_markers():
     return marker_list
 
 def write_summary_results(res, save_folder):
-    all_population = res.obtain_all_population()
+    all_population = res.obtain_archive()
     best_population = res.opt
 
     critical_best,_ = best_population.divide_critical_non_critical()
@@ -262,7 +263,7 @@ def design_space(res, save_folder, classification_type=ClassificationType.DT, it
     xl = problem.xl
     xu = problem.xu
 
-    all_population = res.obtain_all_population()
+    all_population = res.obtain_archive()
     critical_all, _ = all_population.divide_critical_non_critical()
 
     if classification_type == ClassificationType.DT:
@@ -372,7 +373,7 @@ def objective_space(res, save_folder, iteration=None, show=False, last_iteration
     objective_names = problem.objective_names
     
     if n_obj == 1:
-       plot_single_objective_space(result=res,
+        plot_single_objective_space(result=res,
                                    save_folder_plot=save_folder_plot,
                                    objective_names=objective_names,
                                    show=show,
@@ -382,9 +383,7 @@ def objective_space(res, save_folder, iteration=None, show=False, last_iteration
 
         # output 3d plots
         if n_obj == 3:
-            all_population = Population()
-            for i, generation in enumerate(res.history):
-                all_population = Population.merge(all_population, generation.pop)
+            all_population = res.obtain_archive()
             visualize_3d(all_population, 
                 save_folder_objective, 
                 objective_names, 
@@ -398,10 +397,20 @@ def objective_space(res, save_folder, iteration=None, show=False, last_iteration
 
 def plot_multi_objective_space(res, n_obj, save_folder_objective, objective_names, show, pf, last_iteration):
     all_population = Population()
+    # n_evals_all = 0
     for i, generation in enumerate(res.history):
-        all_population = Population.merge(all_population, generation.pop)
-        # all_population = res.obtain_all_population()
+        # TODO first generation has somehow archive size of 0
+        # all_population = generation.archive #Population.merge(all_population, generation.pop)
+        n_eval = generation.evaluator.n_eval
+        # TODO assure that every algorithm stores in n_eval the number of evaluations SO FAR performed!!
+        # n_evals_all += n_eval
+        # print(f"[visualizer] n_eval: {n_eval}")
 
+        all_population = res.archive[0:n_eval]
+        #assert len(all_population) == n_eval, f"{len(all_population)} != {n_eval}"
+
+        # all_population = res.obtain_all_population()
+        # print(f"[visualizer] len(gen archive): {len(all_population)}")
         critical_all, _ = all_population.divide_critical_non_critical()
         
         # plot only last iteration if requested
@@ -508,16 +517,21 @@ def plot_single_objective_space(result, save_folder_plot, objective_names, show,
     # Set the figure size to stretch the x-axis physically
     fig.set_size_inches(x_axis_width, fig.get_figheight(), forward=True)
 
-    all_population = res.obtain_all_population()
+    all_population = res.obtain_archive()
     critical, _ = all_population.divide_critical_non_critical()
 
     plt.title(f"{res.algorithm.__class__.__name__}\nObjective Space | {problem.problem_name}" + \
                     " (" + str(len(all_population)) + " testcases, " + \
                         str(len(critical)) + " of which are critical)")
-    
+        
+    n_evals_all = 0
+
     # we plot the fitness over time as it is only one value for each iteration
     for i, generation in enumerate(res.history):
-        all_population = generation.pop
+        n_eval = generation.evaluator.n_eval
+        n_evals_all += n_eval
+        # print(f"[visualizer] n_eval: {n_eval}")
+        all_population = res.archive[0:n_evals_all]
         axis_y = 0
         critical, not_critical = all_population.divide_critical_non_critical()
         critical_clean = duplicate_free(critical)
@@ -530,9 +544,9 @@ def plot_single_objective_space(result, save_folder_plot, objective_names, show,
         if len(critical_clean) != 0:
             plt.scatter([i]*len(critical_clean), critical_clean.get("F")[:, axis_y], s=40,
                         facecolors=color_not_optimal, edgecolors=color_critical, marker='o')
-
         optimal_pop = get_nondominated_population(all_population)
         critical, not_critical = optimal_pop.divide_critical_non_critical()
+
         critical_clean = duplicate_free(critical)
         not_critical_clean = duplicate_free(not_critical)
         
@@ -590,8 +604,8 @@ def optimal_individuals(res, save_folder):
 
         for index in range(len(clean_pop)):
             row = [index]
-            row.extend(["%.6f" % X_i for X_i in clean_pop.get("X")[index]])
-            row.extend(["%.6f" % F_i for F_i in clean_pop.get("F")[index]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in clean_pop.get("X")[index]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in clean_pop.get("F")[index]])
             row.extend(["%i" % clean_pop.get("CB")[index]])
             write_to.writerow(row)
         f.close()
@@ -617,14 +631,13 @@ def all_individuals(res, save_folder):
         write_to.writerow(header)
 
         index = 0
-        for algo in hist:
-            for i in range(len(algo.pop)):
+        all_individuals = res.obtain_archive()
+        for index, ind in enumerate(all_individuals):
                 row = [index]
-                row.extend(["%.6f" % X_i for X_i in algo.pop.get("X")[i]])
-                row.extend(["%.6f" % F_i for F_i in algo.pop.get("F")[i]])
-                row.extend(["%i" % algo.pop.get("CB")[i]])
+                row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in ind.get("X")])
+                row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in ind.get("F")])
+                row.extend(["%i" % ind.get("CB")])
                 write_to.writerow(row)
-                index += 1
         f.close()
 
 def all_critical_individuals(res, save_folder):
@@ -634,7 +647,7 @@ def all_critical_individuals(res, save_folder):
     design_names = problem.design_names
     objective_names = problem.objective_names
 
-    all = res.obtain_all_population()
+    all = res.obtain_archive()
     critical = all.divide_critical_non_critical()[0]
 
     with open(save_folder + 'all_critical_testcases.csv', 'w', encoding='UTF8', newline='') as f:
@@ -652,8 +665,8 @@ def all_critical_individuals(res, save_folder):
         # for algo in hist:
         for i in range(len(critical)):
             row = [index]
-            row.extend(["%.6f" % X_i for X_i in critical.get("X")[i]])
-            row.extend(["%.6f" % F_i for F_i in critical.get("F")[i]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in critical.get("X")[i]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in critical.get("F")[i]])
             write_to.writerow(row)
             index += 1
         f.close()
@@ -702,8 +715,8 @@ def write_generations(res, save_folder):
             index = 0
             for i in range(len(algo.pop)):
                 row = [index]
-                row.extend(["%.6f" % X_i for X_i in algo.pop.get("X")[i]])
-                row.extend(["%.6f" % F_i for F_i in algo.pop.get("F")[i]])
+                row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in algo.pop.get("X")[i]])
+                row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in algo.pop.get("F")[i]])
                 row.extend(["%i" % algo.pop.get("CB")[i]])
                 write_to.writerow(row)
                 index += 1
@@ -735,8 +748,8 @@ def write_pf_individuals(save_folder, pf_pop):
 
         for index in range(len(pf_pop)):
             row = [index]
-            row.extend(["%.6f" % X_i for X_i in pf_pop.get("X")[index]])
-            row.extend(["%.6f" % F_i for F_i in pf_pop.get("F")[index]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in pf_pop.get("X")[index]])
+            row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in pf_pop.get("F")[index]])
             row.extend(["%i" % pf_pop.get("CB")[index]])
             write_to.writerow(row)
         f.close()

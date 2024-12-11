@@ -13,6 +13,7 @@ from pymoo.optimize import minimize
 from pymoo.termination import get_termination
 from pymoo.core.problem import Problem
 from opensbt.exception.configuration import RestrictiveConfigException
+from opensbt.utils.archive import MemoryArchive
 from opensbt.utils.time_utils import convert_pymoo_time_to_seconds
 from pymoo.core.population import Population
 from opensbt.visualization.configuration import *
@@ -129,7 +130,8 @@ class NsgaIIDTOptimizer(Optimizer):
             sampling = select_operator("init", config),
             crossover = select_operator( "cx", config),
             mutation = select_operator( "mut", config),
-            eliminate_duplicates = select_operator( "dup", config)
+            eliminate_duplicates = select_operator( "dup", config),
+            archive=MemoryArchive()
         )
 
         tree_iteration = 0
@@ -155,10 +157,12 @@ class NsgaIIDTOptimizer(Optimizer):
                     pop_size=pop_size,
                     n_offsprings=num_offsprings,
                     sampling=initial_population,
-                    crossover = select_operator( "cx", config),
-                    mutation = select_operator( "mut", config),
-                    eliminate_duplicates = select_operator( "dup", config)
-                )
+                    crossover = select_operator("cx",config),
+                    mutation = select_operator("mut", config),
+                    eliminate_duplicates = select_operator( "dup", config),
+                    archive=MemoryArchive()
+                 )
+
 
                 termination = get_termination("n_gen", inner_num_gen)
 
@@ -250,5 +254,6 @@ class NsgaIIDTOptimizer(Optimizer):
         # log.info(f"opt_all: {opt_all}")
         opt_all_nds = get_nondominated_population(opt_all)
         res_holder.opt = opt_all_nds
+        res_holder.archive = opt_all  # for now the same all pops together
 
         return res_holder
