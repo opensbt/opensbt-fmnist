@@ -23,9 +23,6 @@ def select_operator(operation,
     """
     Selects either the default operator or a custom operator based on the condition.
     """
-    if kwargs is not None:
-        kwargs = {}
-        
     if config.operators[operation] is None:
         if operation == "mut":
             operator = PM   
