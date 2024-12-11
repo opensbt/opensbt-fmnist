@@ -47,7 +47,7 @@ class NsgaIIOptimizer(Optimizer):
             crossover = select_operator("cx", config),
             mutation = select_operator("mut", config),
             eliminate_duplicates = select_operator("dup", config),
-            archive=MemoryArchive())
+            archive=MemoryArchive()
         )
 
         ''' Prioritize max search time over set maximal number of generations'''
