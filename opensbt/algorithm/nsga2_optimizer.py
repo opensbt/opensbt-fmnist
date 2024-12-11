@@ -1,3 +1,4 @@
+from opensbt.utils.operators import select_operator
 from pymoo.core.problem import Problem
 from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
@@ -17,7 +18,6 @@ class NsgaIIOptimizer(Optimizer):
 
     def __init__(self,
                 problem: Problem,
-        
                 config: SearchConfiguration):
         self.config = config
         self.problem = problem
@@ -40,11 +40,12 @@ class NsgaIIOptimizer(Optimizer):
         self.algorithm = NSGA2(
             pop_size=config.population_size,
             n_offsprings=config.num_offsprings,
-            sampling=FloatRandomSampling(),
-            crossover=SBX(prob=config.prob_crossover, eta=config.eta_crossover),
-            mutation=PM(prob=config.prob_mutation, eta=config.eta_mutation),
-            eliminate_duplicates=True)
-
+            sampling = select_operator("init", config),
+            crossover = select_operator("cx", config),
+            mutation = select_operator("mut", config),
+            eliminate_duplicates = select_operator("dup", config)
+        )
+        
         ''' Prioritize max search time over set maximal number of generations'''
         if config.maximal_execution_time is not None:
             self.termination = get_termination("time", config.maximal_execution_time)
