@@ -128,8 +128,8 @@ class NsgaIIDTOptimizer(Optimizer):
             pop_size=None,
             n_offsprings=None,
             sampling = select_operator("init", config),
-            crossover = select_operator( "cx", config),
-            mutation = select_operator( "mut", config),
+            crossover = select_operator( "cx", config, **{"eta" : eta_crossover, "prob" : prob_crossover}),
+            mutation = select_operator( "mut", config, **{"eta" : eta_mutation, "prob" : prob_mutation}),
             eliminate_duplicates = select_operator( "dup", config),
             archive=MemoryArchive()
         )
@@ -157,12 +157,12 @@ class NsgaIIDTOptimizer(Optimizer):
                     pop_size=pop_size,
                     n_offsprings=num_offsprings,
                     sampling=initial_population,
-                    crossover = select_operator("cx",config),
-                    mutation = select_operator("mut", config),
+                    crossover = select_operator( "cx", config, **{"eta" : eta_crossover, "prob" : prob_crossover}),
+                    mutation = select_operator( "mut", config, **{"eta" : eta_mutation, "prob" : prob_mutation}),
                     eliminate_duplicates = select_operator( "dup", config),
                     archive=MemoryArchive()
                  )
-
+                print(select_operator("mut", config))
 
                 termination = get_termination("n_gen", inner_num_gen)
 
