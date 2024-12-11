@@ -1,20 +1,7 @@
-import os
-import sys
-from pathlib import Path
-
-from pymoo.optimize import minimize
-from pymoo.visualization.scatter import Scatter
 from pymoo.core.problem import Problem
 from pymoo.termination import get_termination
 from pymoo.algorithms.soo.nonconvex.pso import PSO
-from pymoo.core.population import Population
-from pymoo.operators.crossover.sbx import SBX
-from pymoo.operators.mutation.pm import PM
-from pymoo.operators.sampling.rnd import FloatRandomSampling
-from pymoo.optimize import minimize
 from pymoo.termination import get_termination
-from opensbt.algorithm.classification.classifier import ClassificationType
-from opensbt.algorithm.classification.decision_tree.decision_tree import *
 from opensbt.algorithm.optimizer import Optimizer
 from opensbt.experiment.search_configuration import SearchConfiguration
 from opensbt.model_ga.result import *
@@ -23,13 +10,22 @@ import logging as log
 from opensbt.utils.archive import MemoryArchive
 
 class PSOOptimizer(Optimizer):
+    """
+        This class provides search with the Particle Swarm Optimization algorithm which is already implemented in pymoo.
+    """
 
     algorithm_name = "PSO"
 
     def __init__(self,
                 problem: Problem,
                 config: SearchConfiguration):
+        """Initializes the particle swarm opimization approach for testing.
 
+        :param problem: The testing problem to be solved.
+        :type problem: SimulationProblem
+        :param config: The configuration for the search.
+        :type config: SearchConfiguration
+        """
         log.info("Initialized PSO Optimizer")
         
         self.config = config

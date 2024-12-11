@@ -1,5 +1,6 @@
+import random
 from opensbt.model_ga.result  import SimulationResult
-from opensbt.evaluation.critical import *
+from opensbt.evaluation.critical import Critical
 from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.population import Population
@@ -30,12 +31,29 @@ import time
 import os
 
 class NsgaIIDTOptimizer(Optimizer):
+    """ 
+        This optimizer implements the NSGA-II-DT algorithm from [1] which is based on the NSGA-II algorithm 
+        but is employing ML models, i.e. decision trees to guide the search for failures. 
 
+        [1] Raja Ben Abdessalem, Shiva Nejati, Lionel C. Briand, and Thomas Stifter. 2018. 
+        Testing vision-based control systems using learnable evolutionary algorithms. 
+        In Proceedings of the 40th International Conference on Software Engineering (ICSE '18). 
+        Association for Computing Machinery, New York, NY, USA, 1016–1026. 
+        https://doi.org/10.1145/3180155.3180160
+    """
+    
     algorithm_name = "NSGA-II-DT" 
 
     def __init__(self,
                  problem: Problem,
                  config: SearchConfiguration):
+        """Initializes the NSGA-II-DT Optimizer
+
+        :param problem: The testing problem.
+        :type problem: Problem
+        :param config: The configuraiton for the search.
+        :type config: SearchConfiguration
+        """
 
         self.problem = problem
         self.config = config
@@ -44,6 +62,11 @@ class NsgaIIDTOptimizer(Optimizer):
         log.info(f"Initialized algorithm with config: {config.__dict__}")
         
     def run(self) -> SimulationResult:
+        """_summary_
+
+        :return: Return a SimulationResults object which holds all information from the simulation.
+        :rtype: SimulationResult
+        """
         problem = self.problem
         config = self.config
 
@@ -65,6 +88,8 @@ class NsgaIIDTOptimizer(Optimizer):
         '''Initial conditions (initial region)'''
         xl = problem.xl
         xu = problem.xu
+        
+        random.seed(config.seed)
 
         # sampling = FloatRandomSampling()
         sampling = LHS()  # Latin Hypercube Sampling
@@ -140,7 +165,7 @@ class NsgaIIDTOptimizer(Optimizer):
                 res = minimize(sub_problem,
                                algorithm,
                                termination,
-                               seed=1,
+                               seed=config.seed,
                                save_history=True,
                                verbose=True)
 
@@ -181,7 +206,9 @@ class NsgaIIDTOptimizer(Optimizer):
             "Crossover probability": str(config.prob_crossover),
             "Crossover eta": str(config.eta_crossover),
             "Mutation probability": str(config.prob_mutation),
-            "Mutation eta": str(config.eta_mutation)}
+            "Mutation eta": str(config.eta_mutation),
+            "Seed" : str(config.seed)
+        }
         
         result = self._create_result(problem, hist_holder, inner_algorithm, execution_time)
         self.res = result

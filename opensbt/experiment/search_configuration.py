@@ -1,4 +1,8 @@
+
 class SearchConfiguration(object):
+    """ This class holds all configuration parameter related to opimization algorithms
+    """
+
     n_generations = None 
     population_size = None
     maximal_execution_time = None
@@ -18,9 +22,14 @@ class SearchConfiguration(object):
     nadir = None
     ideal = None
     
+    seed = None
+    
 
-#TODO create a search configuration file specific for each algorithm
 class DefaultSearchConfiguration(SearchConfiguration):
+    """ This class holds all configuration parameter initialized with default values 
+    """
+    #TODO create a search configuration file specific for each algorithm
+
     n_generations = 5 
     population_size = 20
     maximal_execution_time = None
@@ -38,3 +47,5 @@ class DefaultSearchConfiguration(SearchConfiguration):
     # metrics
     ref_point_hv = None
     nadir = ref_point_hv
+
+    seed = None

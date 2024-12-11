@@ -10,7 +10,15 @@ import numpy as np
 from opensbt.visualization.configuration import *
 
 
-def plot_scenario_gif(parameter_values, simout: SimulationOutput, savePath=None, fileName=None, trace_interval=config.DEFAULT_TRACE_INTERVAL):
+def plot_scenario_gif(parameter_values, 
+                      simout: SimulationOutput, 
+                      savePath=None, 
+                      fileName=None, 
+                      trace_interval=config.DEFAULT_TRACE_INTERVAL):
+    
+    """This functions visualizes the executed scenario.
+    """
+    
     if "car_length" in simout.otherParams:
         car_length = float(simout.otherParams["car_length"])
     else:
@@ -169,7 +177,6 @@ def plot_scenario_gif(parameter_values, simout: SimulationOutput, savePath=None,
         x_vehicle = x_vehicles[key]
         y_vehicle = y_vehicles[key]
         plt.plot(x_vehicle, y_vehicle, color=colors["traces"])
-
 
     def update(i):
         # updating ego

@@ -1,30 +1,65 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 from pymoo.core.problem import Problem
 import numpy as np
 from opensbt.evaluation.critical import Critical
-from opensbt.evaluation.fitness import *
+from opensbt.evaluation.fitness import Fitness
 import logging as log
 
 @dataclass
 class ADASProblem(Problem):
-
+    """ Basic problem class for ADAS problems """
+    
     def __init__(self,
-                 xl: List[float],
-                 xu: List[float],
-                 scenario_path: str,
-                 fitness_function: Fitness,
-                 simulate_function,
-                 critical_function: Critical,
-                 simulation_variables: List[float],
-                  simulation_time: float = 10,
-                 sampling_time: float = 100,
-                 design_names: List[str] = None,
-                 objective_names: List[str] = None,
-                 problem_name: str = None,
-                 other_parameters: Dict = None,
-                 approx_eval_time: float = None,
-                 do_visualize: bool = False):
+        xl: List[float],
+        xu: List[float],
+        scenario_path: str,
+        fitness_function: Fitness,
+        simulate_function,
+        critical_function: Critical,
+        simulation_variables: List[str],
+        simulation_time: float = 10,
+        sampling_time: float = 100,
+        design_names: List[str] = None,
+        objective_names: List[str] = None,
+        problem_name: str = None,
+        other_parameters: Dict = None,
+        approx_eval_time: float = None,
+        do_visualize: bool = False):
+        """Generates a simulation-based testing problem.
+
+        :param xl: Lower bound for the search domain.
+        :type xl: List[float]
+        :param xu: Upper bound for the search domain.
+        :type xu: List[float]
+        :param scenario_path: The path to the scenario to be simulated.
+        :type scenario_path: str
+        :param fitness_function: The instance of the fitness function to evaluate simulations.
+        :type fitness_function: Fitness
+        :param simulate_function: The pointer to the simulate function of the simulator.
+        :type simulate_function: _type_
+        :param critical_function: The instance of the oracle function to assign pass fail verdicts.
+        :type critical_function: Critical
+        :param simulation_variables: The name of the simulation variables to alter for test generation.
+        :type simulation_variables: List[float]
+        :param simulation_time: The simulation time for the test execution, defaults to 10
+        :type simulation_time: float, optional
+        :param sampling_time: The sampling time for the simulator, defaults to 100
+        :type sampling_time: float, optional
+        :param design_names: The name for the search variable to use in the output. If none is said, simulation_variables is used, defaults to None
+        :type design_names: List[str], optional
+        :param objective_names: The name of the objectives to use in the output, defaults to None
+        :type objective_names: List[str], optional
+        :param problem_name: The name of the problem, defaults to None
+        :type problem_name: str, optional
+        :param other_parameters: Other necessary parameters, defaults to None
+        :type other_parameters: Dict, optional
+        :param approx_eval_time: The approximate evaluation time for one test execution, defaults to None
+        :type approx_eval_time: float, optional
+        :param do_visualize: Visualize test execution or not, defaults to False
+        :type do_visualize: bool, optional
+        :raises ValueError: Raises ValueError if min_or_max of fitness function is not correctly configured.
+        """
 
         super().__init__(n_var=len(xl),
                          n_obj=len(fitness_function.name),
@@ -85,8 +120,12 @@ class ADASProblem(Problem):
         self.counter = self.counter + 1
         log.info(f"Running evaluation number {self.counter}")
         try:
-            simout_list = self.simulate_function(x, self.simulation_variables, self.scenario_path, sim_time=self.simulation_time,
-                                                 time_step=self.sampling_time, do_visualize=self.do_visualize)
+            simout_list = self.simulate_function(x, 
+                                                 self.simulation_variables, 
+                                                 self.scenario_path, 
+                                                 sim_time=self.simulation_time,
+                                                 time_step=self.sampling_time, 
+                                                 do_visualize=self.do_visualize)
         except Exception as e:
             log.info("Exception during simulation ocurred: ")
             # TODO handle exception, terminate, so that results are stored
@@ -98,14 +137,12 @@ class ADASProblem(Problem):
         for simout in simout_list:
             out["SO"].append(simout)
             vector_fitness = np.asarray(
-                self.signs) * np.array(self.fitness_function.eval(simout))
+                self.signs) * np.array(self.fitness_function.eval(simout, **kwargs))
             vector_list.append(np.array(vector_fitness))
             label_list.append(self.critical_function.eval(vector_fitness, simout = simout))
 
         out["F"] = np.vstack(vector_list)
         out["CB"] = label_list
-    # self.counter = self.counter + 1
-    # log.info(f"++ Evaluations executed {self.counter*100/(population_size*num_gen)}% ++")
 
     def is_simulation(self):
         return True

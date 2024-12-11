@@ -46,6 +46,8 @@ experiment = None
 
 ########
 
+"""  This module is the entry point when running OpenSBT in the standalone mode. """
+
 parser = argparse.ArgumentParser(description="Pass parameters for search. Pass -h for a list of all options.")
 parser.add_argument('-e', dest='exp_number', type=str, action='store',
                     help='Name of default experiment to be used. (show all experiments via -info)].')
@@ -71,13 +73,12 @@ parser.add_argument('-v', dest='do_visualize', action='store_true',
                     help='Whether to use the simuator\'s visualization. This feature is useful for debugging and demonstrations, however it reduces the search performance.')
 parser.add_argument('-info', dest='show_info', action='store_true',
                     help='Names of all defined experiments.')
+parser.add_argument('-s', dest='seed', action='store', default=None, type=int,
+                    help='Seed for randomized operations.')
 
 args = parser.parse_args()
 
 #######
-
-# list all experiments
-
 
 if args.show_info:
     log.info("Experiments with the following names are defined:")
@@ -97,8 +98,6 @@ elif not (args.exp_number or args.scenario_path):
     log.info("Flags set not correctly: No file is provided or no example experiment selected.")
     sys.exit()
 
-###### set experiment
-####### have indiviualized imports
 if args.exp_number:
     log.info(f"Selected experiment: {args.exp_number}")
     experiment = experiments_store.load(experiment_name=args.exp_number)
@@ -149,6 +148,8 @@ if not args.design_names is None:
     problem.design_names = args.design_names
 if not args.do_visualize is None:
     problem.do_visualize = args.do_visualize
+if not args.seed is None:
+    config.seed = args.seed
 
 ####### Run algorithm
 

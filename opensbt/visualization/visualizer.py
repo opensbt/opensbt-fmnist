@@ -31,6 +31,7 @@ from opensbt.config import BACKUP_FOLDER, CONSIDER_HIGH_VAL_OS_PLOT,  \
                                 METRIC_PLOTS_FOLDER, LAST_ITERATION_ONLY_DEFAULT, \
                                 OUTPUT_PRECISION
 
+"""This module provides functions for the output and presentation of results."""
 
 def create_save_folder(problem: Problem, results_folder: str, algorithm_name: str, is_experimental=False):
     problem_name = problem.problem_name
@@ -87,7 +88,7 @@ def write_calculation_properties(res: Result, save_folder: str, algorithm_name: 
         for item,value in algorithm_parameters.items():
             write_to.writerow([item, value])
 
-        _additional_descritption(res, save_folder, algorithm_name, **kwargs)
+        _additional_description(res, save_folder, algorithm_name, **kwargs)
 
         f.close()
 
@@ -97,7 +98,7 @@ def write_calculation_properties(res: Result, save_folder: str, algorithm_name: 
 def _calc_properties(res, save_folder, algorithm_name, **kwargs):
     pass
 
-def _additional_descritption(res, save_folder, algorithm_name, **kwargs):
+def _additional_description(res, save_folder, algorithm_name, **kwargs):
     pass
 
 def get_pop_using_mode(res: Result, mode: str):
@@ -354,7 +355,6 @@ def backup_problem(res,save_folder):
     import dill
     with open(save_folder_problem + os.sep + "problem", "wb") as f:
         dill.dump(res.problem, f)
-
 
 def objective_space(res, save_folder, iteration=None, show=False, last_iteration=LAST_ITERATION_ONLY_DEFAULT):
     save_folder_objective = save_folder + "objective_space" + os.sep
@@ -671,40 +671,6 @@ def all_critical_individuals(res, save_folder):
             index += 1
         f.close()
 
-''' Write down the population for each generation'''
-def write_generations(res, save_folder):
-
-    save_folder_history = save_folder + "generations" + os.sep
-    Path(save_folder_history).mkdir(parents=True, exist_ok=True) 
-
-    problem = res.problem
-    hist = res.history
-    design_names = problem.design_names
-    objective_names = problem.objective_names
-
-    for i, algo in enumerate(hist):
-        with open(save_folder_history + f'gen_{i+1}.csv', 'w', encoding='UTF8', newline='') as f:
-            write_to = csv.writer(f)
-
-            header = ['Index']
-            for i in range(problem.n_var):
-                header.append(design_names[i])
-            for i in range(problem.n_obj):
-                header.append(f"Fitness_{objective_names[i]}")
-            # column to indicate wheter individual is critical or not 
-            header.append(f"Critical")
-
-            write_to.writerow(header)
-            index = 0
-            for i in range(len(algo.pop)):
-                row = [index]
-                row.extend([f"%.{OUTPUT_PRECISION}f" % X_i for X_i in algo.pop.get("X")[i]])
-                row.extend([f"%.{OUTPUT_PRECISION}f" % F_i for F_i in algo.pop.get("F")[i]])
-                row.extend(["%i" % algo.pop.get("CB")[i]])
-                write_to.writerow(row)
-                index += 1
-            f.close()
-
 def simulations(res, save_folder, mode="all", write_max = 100):
     '''Visualization of the results of simulations'''
     problem = res.problem
@@ -725,7 +691,6 @@ def simulations(res, save_folder, mode="all", write_max = 100):
 
 ''' Write down the population for each generation'''
 def write_generations(res, save_folder):
-
     save_folder_history = save_folder + "generations" + os.sep
     Path(save_folder_history).mkdir(parents=True, exist_ok=True) 
 

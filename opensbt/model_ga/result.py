@@ -2,8 +2,7 @@ import numpy as np
 from pymoo.core.result import Result
 from opensbt import config
 from opensbt.model_ga.population import PopulationExtended as Population
-from opensbt.model_ga.individual import IndividualSimulated as Individual
-from opensbt.utils.sorting import *
+from opensbt.utils.sorting import get_nondominated_population
 import dill
 import os
 from pathlib import Path
@@ -11,11 +10,12 @@ from opensbt.visualization import visualizer
 import logging as log
 
 from opensbt.config import RESULTS_FOLDER, WRITE_ALL_INDIVIDUALS, EXPERIMENTAL_MODE
-import numpy as np
-from utils.sorting import *
 
 class SimulationResult(Result):
-
+    """
+    This class extends pymoo's Result class to output simulation results 
+    and extract information from the test data.
+    """
     def __init__(self) -> None:
         super().__init__()
         self._additional_data = dict()
@@ -38,27 +38,9 @@ class SimulationResult(Result):
             hist_X = None
         return n_evals, hist_X
     
-    # iteration of first critical solutions found + fitness values
-    # def get_first_critical(self):
-    #     hist = self.history
-    #     res = Population() 
-    #     iter = 0
-    #     if hist is not None:
-    #         for algo in hist:
-    #             iter += 1
-    #             #n_evals.append(algo.evaluator.n_eval)  # store the number of function evaluations
-    #             opt = algo.opt  # retrieve the optimum from the algorithm
-    #             crit = np.where((opt.get("CB"))) [0] 
-    #             feas = np.where((opt.get("feasible"))) [0] 
-    #             feas = list(set(crit) & set(feas))
-    #             res = opt[feas]
-    #             if len(res) == 0:
-    #                 continue
-    #             else:
-    #                 return iter, res
-    #     return 0, res
-    
     def get_first_critical(self):
+        """ Identifies the iteration number when the first critical solutions was found """
+
         hist = self.history
         archive = self.obtain_archive()
         res = Population() 
@@ -77,6 +59,8 @@ class SimulationResult(Result):
         return 0, res
     
     def obtain_history(self, critical=False):
+        """ Returns the set of test inputs over all genreation based on feasibility and criticality 
+        according to number of function evaluations"""
         hist = self.history
         if hist is not None:
             n_evals = []  # corresponding number of function evaluations
@@ -95,8 +79,9 @@ class SimulationResult(Result):
             n_evals = None
             hist_F = None
         return n_evals, hist_F
-
+    
     def obtain_all_population(self):
+        """ Returns all test inputs over all generations """
         all_population = Population()
         hist = self.history
         if hist is not None:
@@ -105,10 +90,13 @@ class SimulationResult(Result):
         return all_population
       
     def obtain_archive(self):
+        """ Returns all archived individuals. """
         return self.archive
     
     def obtain_history_archive(self, critical=False):
+        """ Returns all archived test inputs over all generations """
         hist = self.history
+        archive = self.obtain_archive()
         if hist is not None:
             n_evals = []  # corresponding number of function evaluations
             hist_F = []  # the objective space values in each generation
@@ -116,7 +104,7 @@ class SimulationResult(Result):
             for i, algo in enumerate(hist):
                 n_eval = algo.evaluator.n_eval - n_eval_last # get the number of evals for the current iteration
                 n_evals.append(n_eval)  # store the number of function evaluations
-                inds = self.archive[n_eval_last : algo.evaluator.n_eval]
+                inds = archive[n_eval_last : algo.evaluator.n_eval]
                 if critical:
                     crit = np.where((inds.get("CB"))) [0] 
                     feas = np.where((inds.get("feasible"))) [0] 
@@ -130,30 +118,35 @@ class SimulationResult(Result):
             n_evals = None
             hist_F = None
         return n_evals, hist_F
-     
+        
     def obtain_history_hitherto_archive(self,critical=False, optimal=True, var = "F"):
-            hist = self.history
-            n_evals = []  # corresponding number of function evaluations
-            hist_F = []  # the objective space values in each generation
+        """ Returns the set of test inputs over all generations based on feasibility and criticality 
+        according to number of function evaluations considering all evaluated test inputs (aggregated)"""
+        hist = self.history
+        n_evals = []  # corresponding number of function evaluations
+        hist_F = []  # the objective space values in each generation
+        archive = self.obtain_archive()
+        all = Population()
+        for i, algo in enumerate(hist):
+            n_eval = algo.evaluator.n_eval
+            n_evals.append(n_eval)
+            all = archive[:n_eval]
+            if optimal:
+                all = get_nondominated_population(all)
+            
+            if critical:
+                crit = np.where((all.get("CB"))) [0] 
+                feas = np.where((all.get("feasible")))[0] 
+                feas = list(set(crit) & set(feas))
+            else:
+                feas = np.where(all.get("feasible"))[0]  # filter out only the feasible and append and objective space values
+            hist_F.append(all.get(var)[feas])
+        return n_evals, hist_F
 
-            all = Population()
-            for i, algo in enumerate(hist):
-                n_eval = algo.evaluator.n_eval
-                n_evals.append(n_eval)
-                all = self.archive[:n_eval]
-                if optimal:
-                    all = get_nondominated_population(all)
-                
-                if critical:
-                    crit = np.where((all.get("CB"))) [0] 
-                    feas = np.where((all.get("feasible")))[0] 
-                    feas = list(set(crit) & set(feas))
-                else:
-                    feas = np.where(all.get("feasible"))[0]  # filter out only the feasible and append and objective space values
-                hist_F.append(all.get(var)[feas])
-            return n_evals, hist_F
+    def obtain_history_hitherto(self,critical=False, optimal=True, var = "F"):   
+        """ Returns the set of test inputs over all generations based on feasibility and criticality 
+        according to number of function evaluations (aggregated)"""
     
-    def obtain_history_hitherto(self,critical=False, optimal=True, var = "F"):
         hist = self.history
         n_evals = []  # corresponding number of function evaluations
         hist_F = []  # the objective space values in each generation
@@ -174,11 +167,13 @@ class SimulationResult(Result):
             hist_F.append(all.get(var)[feas])
         return n_evals, hist_F
     
+    """ Write down the result object by pickling """
     def persist(self, save_folder):
         Path(save_folder).mkdir(parents=True, exist_ok=True)
         with open(save_folder + os.sep + "result", "wb") as f:
             dill.dump(self, f)
-
+            
+    """ Load the result object which was pickled before """
     @staticmethod
     def load(save_folder, name="result"):
         with open(save_folder + os.sep + name, "rb") as f:
@@ -187,7 +182,8 @@ class SimulationResult(Result):
     @property
     def additional_data(self):
         return self._additional_data
-
+    
+    """ Write the results artefacts for the current experiment"""
     def write_results(self, results_folder = RESULTS_FOLDER, params=None, is_experimental=EXPERIMENTAL_MODE):
         algorithm = self.algorithm
 

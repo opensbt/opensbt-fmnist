@@ -1,9 +1,6 @@
-from abc import abstractmethod
 
 import numpy as np
-
 import pymoo.gradient.toolbox as anp
-from pymoo.util.cache import Cache
 from pymoo.util.misc import at_least_2d_array
 from opensbt.simulation.simulator import SimulationOutput
 
@@ -12,6 +9,11 @@ from pymoo.core.problem import ElementwiseEvaluationFunction
 from pymoo.core.problem import LoopedElementwiseEvaluation
 
 class SimulationProblem(Problem):
+    
+    """
+    This class extends the pymoo's Problem class to integrate the handling of simulation output-related data.
+    """
+    
     def __init__(self,
                  n_var,
                  n_obj=1,

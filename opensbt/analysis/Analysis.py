@@ -13,7 +13,7 @@ from opensbt.model_ga.problem import SimulationProblem
 pymoo.core.problem.Problem = SimulationProblem
 
 import dill
-from visualization.combined import write_last_metric_values
+from opensbt.visualization.combined import write_last_metric_values
 import traceback
 from opensbt.utils.sampling import cartesian_reference_set
 import signal
@@ -35,18 +35,20 @@ from opensbt.visualization import configuration, visualizer, output_metric
 from opensbt.utils import log_utils, result_utils
 from opensbt.config import *
 
-''' This script works in two modes:
-    1. Repeated Executions of experiments  + Analysis of Results (Applying Metrics) 
-    2. Analysis of Results 
-
-    For 1) just configure the algorithms, their config, n_runs (bottom part of this file)
-    
-    For CID analysis the estimated critical set needs to be pre-computed and past through the PATH_CRITICAL_SET variable.
-
-    For 2) just run analysis.py and pass via -p the path to stored experiment results. 
-'''
-
 class Analysis(object):
+    """ This class executes test runs multiple times with differnet search algorithms and performs an analysis and comparison of testing results of
+        used search approaches
+    
+        Following features are supported:
+        1. Repeated executions of experiments  + Analysis of results (Application of Metrics) 
+        2. Only analysis of results 
+
+        For 1) just configure the algorithms, their config, n_runs (bottom part of this file)
+        For 2) just run analysis.py and pass via -p the path to stored experiment results. 
+        
+        For CID analysis the estimated critical set needs to be pre-computed and past through the PATH_CRITICAL_SET variable define in the config.py.
+    """
+
     REPEAT_RUN = True
     MAX_REPEAT_FAILURE = 50
     TIME_WAIT = 10  # for restart in sec
@@ -304,7 +306,7 @@ class Analysis(object):
                                    distance_tick):
         # temporary some params hard coded
         subplot_names = ["CID"]
-        metric_data_loaded = retrieve_metric_data_from_csv([paths_results_csv])
+        metric_data_loaded = retrieve_metric_data_from_csv([paths_results_csv], len(algo_names))
         make_comparison_plot(n_func_evals_lim,
                              output_folder,
                              metric_data_loaded,
@@ -312,7 +314,7 @@ class Analysis(object):
                              algo_names,
                              distance_tick=distance_tick,
                              suffix="_ds")
-        
+    @staticmethod
     def generate_modified_results(algo_paths,
                                 crit_fnc,
                                 suffix):
@@ -495,14 +497,8 @@ class Analysis(object):
                 if do_coverage_analysis:
                     output_metric.cid_analysis_hitherto(
                         res, reference_set=cs_estimated, save_folder=run_path)
-                    
-        # create combined criticality plots
-        # output_temp.design_space(problem, population=critical_all_algo1, save_folder = analysis_folder + os.sep + "critical_set" + os.sep, suffix=f"_{algo_name_1}", classification_type=None)
-        # output_temp.design_space(problem, population=critical_all_algo2, save_folder = analysis_folder + os.sep + "critical_set" + os.sep, suffix=f"_{algo_name_2}", classification_type=None)
-        # output_temp.design_space(problem, population=critical_all, save_folder = analysis_folder + os.sep + "critical_set" + os.sep, suffix="_all", classification_type=None)
-
+    
         # Objective Space metrics
-
         # TODO refactor, beautify, make more modular/generic
         if do_ds_analysis:
             log.info(f"run_paths_all: {len(run_paths_all)}")

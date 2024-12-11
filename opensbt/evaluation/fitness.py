@@ -1,21 +1,39 @@
 import sys
-from typing import List, Tuple
+from typing import Tuple
 from opensbt.simulation.simulator import SimulationOutput
 import numpy as np
 import math
-from scipy.spatial.distance import cdist
 from opensbt.utils import geometric
 
+
 class Fitness():
+    """This class defines an interface for concrete fitness functions. 
+    """
+    
+    
     @property
     def min_or_max(self):
+        """Defines for each objective if it is minimized or maximized. Returns a tuple, where each element holds 
+           the value "min" or "max".
+        """
         pass
 
     @property
-    def name(self):
+    def name(self):     
+        """Defines the name of the fitness funtion as a tuple, where each element corresponds to the name of the objective
+        """
         pass
-
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+ 
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:    
+        """Returns the fitness value of a given SimulationOutput instance.
+    
+        :param simout: SimulationOutput instance.
+        :type simout: SimulationOutput 
+        :param kwargs: Further optional variables needed for fitness evaluation. 
+        :type kwargs: **Dict 
+        :return:: Return the fitness value for the given simulation results. Each tuple element corresponds to value for the specific fitness dimension.
+        :rtype Tuple[float]
+        """
         pass
 
 class MockFitness():
@@ -27,7 +45,7 @@ class MockFitness():
     def name(self):
         return "dimension_1","dimension_2"
 
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         return (0,0)
         
 class FitnessMinDistance(Fitness):
@@ -39,14 +57,14 @@ class FitnessMinDistance(Fitness):
     def name(self):
         return "Min distance"
 
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         if "distance" in simout.otherParams:
             dist = simout.otherParams["distance"]
             result = min(dist)
         else:
-            traceEgo = simout.location["ego"]
-            tracePed = simout.location["adversary"]
-            result = np.min(geometric.distPair(traceEgo, tracePed))
+            trace_ego = simout.location["ego"]
+            trace_ped = simout.location["adversary"]
+            result = np.min(geometric.distPair(trace_ego, trace_ped))
         return result
 
 class FitnessMinDistanceVelocity(Fitness):
@@ -58,19 +76,19 @@ class FitnessMinDistanceVelocity(Fitness):
     def name(self):
         return "Min distance", "Velocity at min distance"
 
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         if "adversary" in simout.location:
             name_adversary = "adversary"
         else:
             name_adversary = "other"
 
-        traceEgo = simout.location["ego"]
-        tracePed = simout.location[name_adversary]
+        trace_ego = simout.location["ego"]
+        trace_ped = simout.location[name_adversary]
 
-        ind_min_dist = np.argmin(geometric.distPair(traceEgo, tracePed))
+        ind_min_dist = np.argmin(geometric.distPair(trace_ego, trace_ped))
 
         # distance between ego and other object
-        distance = np.min(geometric.distPair(traceEgo, tracePed))
+        distance = np.min(geometric.distPair(trace_ego, trace_ped))
 
         # speed of ego at time of the minimal distance
         speed = simout.speed["ego"][ind_min_dist]
@@ -86,26 +104,25 @@ class FitnessMinDistanceVelocityFrontOnly(Fitness):
     def name(self):
         return "Min distance", "Velocity at min distance"
 
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         if "adversary" in simout.location:
             name_adversary = "adversary"
         else:
             name_adversary = "other"
         car_length = float(4.0)
-        traceEgo = simout.location["ego"]
-        tracePed = simout.location[name_adversary]
-        ind_min_dist = np.argmin(geometric.distPair(traceEgo, tracePed))
+        trace_ego = simout.location["ego"]
+        trace_ped = simout.location[name_adversary]
+        ind_min_dist = np.argmin(geometric.distPair(trace_ego, trace_ped))
         # approx distance between ego's front and other object
-        distance = np.min(geometric.distPair(traceEgo, tracePed))  - car_length/2
+        distance = np.min(geometric.distPair(trace_ego, trace_ped))  - car_length/2
         # speed of ego at time of the minimal distance
         speed = simout.speed["ego"][ind_min_dist]
         # value scenarios worse if pedestrian is not in front of the car
         FITNESS_WORSE = 1000
-        if (traceEgo[ind_min_dist][0] -  tracePed[ind_min_dist][0] < car_length/2):
+        if (trace_ego[ind_min_dist][0] -  trace_ped[ind_min_dist][0] < car_length/2):
             distance = FITNESS_WORSE
             speed = -FITNESS_WORSE
         return (distance, speed)
-
 
 class FitnessMinTTC(Fitness):
     @property
@@ -116,7 +133,7 @@ class FitnessMinTTC(Fitness):
     def name(self):
         return "Min TTC",
 
-    def eval(self, simout: SimulationOutput) -> Tuple[float]:
+    def eval(self, simout: SimulationOutput, **kwargs) -> Tuple[float]:
         all_ttc = []
         if "adversary" in simout.location:
             name_adversary = "adversary"
@@ -156,7 +173,6 @@ class FitnessMinTTC(Fitness):
         min_ttc = np.min(all_ttc)
         return min_ttc
 
-
 class FitnessMinTTCVelocity(Fitness):
     @property
     def min_or_max(self):
@@ -166,7 +182,7 @@ class FitnessMinTTCVelocity(Fitness):
     def name(self):
         return "Min TTC", "Critical Velocity"
 
-    def eval(self, simout: SimulationOutput) -> float:
+    def eval(self, simout: SimulationOutput, **kwargs) -> float:
         if "adversary" in simout.location:
             name_adversary = "adversary"
         else:
@@ -282,7 +298,7 @@ class FitnessAdaptedDistSpeedRelVelocity(Fitness):
                                    (abs(z_perpendicular[i]) - car_width / 2) ** 2)
         return result
 
-    def eval(self, simout: SimulationOutput) -> float:
+    def eval(self, simout: SimulationOutput, **kwargs) -> float:
         if "car_length" in simout.otherParams:
             car_length = float(simout.otherParams["car_length"])
         else:
@@ -313,13 +329,13 @@ class FitnessAdaptedDistSpeedRelVelocity(Fitness):
         speed_ego = np.array(simout.speed["ego"])
         yaw_ego = np.array(simout.yaw["ego"])  # time series of Ego velocity
 
-        ''' Global coordinates '''
+        # Global coordinates 
         x_ego = trace_ego[:, 0]
         y_ego = trace_ego[:, 1]
         x_adv = trace_adv[:, 0]
         y_adv = trace_adv[:, 1]
 
-        ''' Coordinates, with respect to ego: e2 is parallel to the direction of ego '''
+        # Coordinates, with respect to ego: e2 is parallel to the direction of ego
         e2_x = np.cos(yaw_ego * math.pi / 180)
         e2_y = np.sin(yaw_ego * math.pi / 180)
         e1_x = e2_y
@@ -354,7 +370,7 @@ class FitnessAdaptedDistanceSpeed(Fitness):
     def name(self):
         return "Critical adapted distance", "Velocity at critical distance"
 
-    def eval(self, simout: SimulationOutput) -> float:
+    def eval(self, simout: SimulationOutput, **kwargs) -> float:
         # use only adapted distance and velocity of the fitness comupation of existing function
         vector_fitness_all = FitnessAdaptedDistSpeedRelVelocity().eval(simout)
         adapted_distance = vector_fitness_all[0]
@@ -371,7 +387,7 @@ class FitnessAdaptedDistanceSpeedTTC(Fitness):
     def name(self):
         return "Critical adapted distance", "Velocity at critical distance", "Min TTC"
 
-    def eval(self, simout: SimulationOutput) -> float:
+    def eval(self, simout: SimulationOutput, **kwargs) -> float:
         min_ttc = FitnessMinTTC().eval(simout)
         pos_crit = FitnessAdaptedDistanceSpeed().eval(simout)
         return pos_crit[0], pos_crit[1], min_ttc

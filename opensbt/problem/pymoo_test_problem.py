@@ -1,14 +1,15 @@
 from dataclasses import dataclass
-from pymoo.core.problem import ElementwiseProblem, Problem
+from pymoo.core.problem import Problem
 from pymoo.problems import get_problem
 from opensbt.evaluation.critical import Critical
-from opensbt.simulation.simulator import SimulationOutput
-import numpy as np
 
 @dataclass
 class PymooTestProblem(Problem):
+    """ Problem class to test testing algorithms on mathematical problems implemented in pymoo. """
     
     def __init__(self, problem_name: str, critical_function: Critical, approx_eval_time: float =0.01):
+        """ Instantiates a pymoo based problem with name "problem_name" as testing problem. """
+
         self.critical_function = critical_function
         self.problem_name = problem_name
         self.test_problem = get_problem(problem_name)
