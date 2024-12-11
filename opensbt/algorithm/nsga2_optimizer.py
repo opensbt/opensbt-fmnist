@@ -1,5 +1,18 @@
+import pymoo
+
+from opensbt.model_ga.individual import IndividualSimulated
+pymoo.core.individual.Individual = IndividualSimulated
+
+from opensbt.model_ga.population import PopulationExtended
+pymoo.core.population.Population = PopulationExtended
+
+from opensbt.model_ga.result  import SimulationResult
+pymoo.core.result.Result = SimulationResult
+
+from opensbt.model_ga.problem import SimulationProblem
+pymoo.core.problem.Problem = SimulationProblem
+
 from opensbt.utils.operators import select_operator
-from pymoo.core.problem import Problem
 from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.operators.crossover.sbx import SBX
@@ -8,9 +21,6 @@ from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.termination import get_termination
 from opensbt.algorithm.optimizer import Optimizer
 from opensbt.experiment.search_configuration import SearchConfiguration
-from opensbt.model_ga.result import *
-from pymoo.util.archive import MultiObjectiveArchive
-
 from opensbt.utils.archive import MemoryArchive
 
 class NsgaIIOptimizer(Optimizer):
@@ -20,7 +30,7 @@ class NsgaIIOptimizer(Optimizer):
     algorithm_name = "NSGA-II"
 
     def __init__(self,
-                problem: Problem,
+                problem: SimulationProblem,
                 config: SearchConfiguration):
         self.config = config
         self.problem = problem

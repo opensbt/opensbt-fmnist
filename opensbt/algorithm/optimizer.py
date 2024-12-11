@@ -2,6 +2,7 @@ from abc import ABC, abstractclassmethod, abstractmethod
 from typing import Dict
 
 from opensbt.experiment.search_configuration import SearchConfiguration
+from opensbt.model_ga.individual import IndividualSimulated
 from opensbt.model_ga.problem import SimulationProblem
 from opensbt.model_ga.result import SimulationResult
 from pymoo.optimize import minimize

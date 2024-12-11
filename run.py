@@ -1,4 +1,5 @@
 import pymoo
+import sys
 
 from opensbt.model_ga.individual import IndividualSimulated
 pymoo.core.individual.Individual = IndividualSimulated
@@ -24,9 +25,10 @@ import argparse
 import logging as log
 import os
 import sys
+from default_experiments import *
+from default_experiments_fmnist import *
 
 from opensbt.experiment.experiment_store import experiments_store
-from default_experiments import *
 from opensbt.utils.log_utils import *
 from opensbt.config import RESULTS_FOLDER, LOG_FILE
 
@@ -190,6 +192,7 @@ if __name__ == "__main__":
         raise ValueError("Error: No algorithm with the given code: " + str(algorithm))
 
     res = optimizer.run()
+    print(type(res.opt.get("SO")[0]))
     res.write_results(results_folder=results_folder, params = optimizer.parameters)
 
     log.info("====== Algorithm search time: " + str("%.2f" % res.exec_time) + " sec")

@@ -15,7 +15,7 @@ import logging as log
 from opensbt.utils.sampling import CartesianSampling
 from opensbt.analysis.quality_indicators.metrics.ncrit import get_n_crit_grid
 from opensbt.config import N_CELLS
-
+import numpy as np
 
 class Quality(object):
     """ This class holds functions to perform an analysis on testing results with defined quality indicators.
