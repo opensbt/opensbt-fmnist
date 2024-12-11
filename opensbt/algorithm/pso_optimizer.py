@@ -41,8 +41,6 @@ class PSOOptimizer(Optimizer):
 
         # initialize algorithm
         self.algorithm = PSO(
-            pop_size=config.population_size,
-            archive = MemoryArchive(),
             pop_size = config.population_size,
             sampling = select_operator("init",config),
             archive = MemoryArchive()
