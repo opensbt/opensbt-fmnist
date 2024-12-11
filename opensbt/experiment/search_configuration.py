@@ -1,4 +1,7 @@
+from dataclasses import dataclass
 
+
+@dataclass
 class SearchConfiguration(object):
     """ This class holds all configuration parameter related to opimization algorithms
     """
@@ -24,6 +27,16 @@ class SearchConfiguration(object):
     
     seed = None
     
+    operators= {
+        "cx" : None,
+        "mut" : None,
+        "dup" : None,
+        "init" : None
+    }
+    
+    custom_params = {  # to be forwarded to operators
+        
+    }
 
 class DefaultSearchConfiguration(SearchConfiguration):
     """ This class holds all configuration parameter initialized with default values 
@@ -49,3 +62,14 @@ class DefaultSearchConfiguration(SearchConfiguration):
     nadir = ref_point_hv
 
     seed = None
+    
+    operators= {
+        "cx" : None,
+        "mut" : None,
+        "dup" : None,
+        "init" : None
+    }
+    
+    custom_params = {  # to be forwarded to operators
+        
+    }
