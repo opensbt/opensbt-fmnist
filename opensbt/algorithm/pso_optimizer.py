@@ -1,3 +1,4 @@
+from opensbt.utils.operators import select_operator
 from pymoo.core.problem import Problem
 from pymoo.termination import get_termination
 from pymoo.algorithms.soo.nonconvex.pso import PSO
@@ -41,6 +42,9 @@ class PSOOptimizer(Optimizer):
         # initialize algorithm
         self.algorithm = PSO(
             pop_size=config.population_size,
+            archive = MemoryArchive(),
+            pop_size = config.population_size,
+            sampling = select_operator("init",config),
             archive = MemoryArchive()
         )
 

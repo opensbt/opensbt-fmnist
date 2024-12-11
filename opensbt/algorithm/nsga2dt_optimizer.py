@@ -1,6 +1,7 @@
 import random
 from opensbt.model_ga.result  import SimulationResult
 from opensbt.evaluation.critical import Critical
+from opensbt.utils.operators import select_operator
 from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.population import Population
@@ -126,11 +127,12 @@ class NsgaIIDTOptimizer(Optimizer):
         inner_algorithm = NSGA2(
             pop_size=None,
             n_offsprings=None,
-            sampling=None,
-            crossover=SBX(prob=prob_crossover, eta=eta_crossover),
-            mutation=PM(prob=prob_mutation, eta=eta_mutation),
-            eliminate_duplicates=True,
-            archive=MemoryArchive())
+            sampling = select_operator("init", config),
+            crossover = select_operator( "cx", config),
+            mutation = select_operator( "mut", config),
+            eliminate_duplicates = select_operator( "dup", config),
+            archive=MemoryArchive()
+        )
 
         tree_iteration = 0
         n_func_evals = 0
@@ -155,10 +157,12 @@ class NsgaIIDTOptimizer(Optimizer):
                     pop_size=pop_size,
                     n_offsprings=num_offsprings,
                     sampling=initial_population,
-                    crossover=SBX(prob=prob_crossover, eta=eta_crossover),
-                    mutation=PM(prob=prob_mutation, eta=eta_mutation),
-                    eliminate_duplicates=True,
-                    archive=MemoryArchive())
+                    crossover = select_operator("cx",config),
+                    mutation = select_operator("mut", config),
+                    eliminate_duplicates = select_operator( "dup", config),
+                    archive=MemoryArchive()
+                 )
+
 
                 termination = get_termination("n_gen", inner_num_gen)
 
