@@ -1,41 +1,9 @@
 import numpy as np
+from fmnist.fmnist_problem import FMNISTProblem
 from opensbt.evaluation.fitness import *
-import logging as log
 import sys
-import random
-from os.path import join
-from pathlib import Path
-# For Python 3.6 we use the base keras
-from mnist.digit_mutator import DigitMutator
-# local imports
-from mnist import vectorization_tools
-from mnist.digit_input import Digit
-from mnist.exploration import Exploration
-from opensbt.model_ga.population import PopulationExtended
-from mnist.config import NGEN, \
-    POPSIZE, EXPECTED_LABEL, INITIALPOP, \
-    ORIGINAL_SEEDS, BITMAP_THRESHOLD, FEATURES
-from math import ceil
-import string
-from numbers import Real
-import random
 import numpy as np
-from pymoo.core.problem import ElementwiseProblem
 from pymoo.core.sampling import Sampling
-from pymoo.core.crossover import Crossover
-from pymoo.core.mutation import Mutation
-import string
-from pymoo.algorithms.moo.nsga2 import NSGA2
-from pymoo.optimize import minimize
-from pymoo.core.duplicate import ElementwiseDuplicateElimination
-from pymoo.core.crossover import Crossover
-from pymoo.core.variable import Real, get
-from pymoo.util.misc import row_at_least_once_true
-from pymoo.core.crossover import Crossover
-from pymoo.core.population import Population
-from pymoo.util.misc import crossover_mask
-from mnist.mnist_problem import MNISTProblem
-from fmnist import fmnist_simulation
 from mnist import mutations
 from pymoo.operators.sampling.rnd import random_by_bounds
 
@@ -84,7 +52,7 @@ class FMnistSamplingValid(Sampling):
         return X
 
     def _generate_digit_mutated(self, 
-            problem: MNISTProblem, 
+            problem: FMNISTProblem, 
             digit, 
             extent_1, 
             extent_2, 
@@ -100,7 +68,7 @@ class FMnistSamplingValid(Sampling):
         return new_digit
 
     def _generate_digit_mutated_bi(self, 
-            problem: MNISTProblem, 
+            problem: FMNISTProblem, 
             digit, 
             extent_1, 
             extent_2, 

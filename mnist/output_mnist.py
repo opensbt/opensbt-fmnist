@@ -34,7 +34,6 @@ def output_explored_digits(res, save_folder):
     print("Exported digits stored in exploration.")
 
 def output_seed_digits(res, save_folder):
-    print(type(res.opt))
     save_folder_seed= save_folder + "digits" + os.sep + "seed"
     Path(save_folder_seed).mkdir(parents=True, exist_ok=True)
     for digit in res.problem.seed_digits:
@@ -46,7 +45,6 @@ def output_optimal_digits_all(res, save_folder):
     save_folder_opt= save_folder + "digits" + os.sep
     Path(save_folder_opt).mkdir(parents=True, exist_ok=True)
     optimal = duplicate_free(res.opt)
-    print("in optimal:", type(res.opt))
     output_subplots_digits(optimal.get("DIG"), 
                     title="Optimal Digits",
                     filename="optimal_all.png", 
@@ -124,7 +122,6 @@ def output_critical_digits_all(res, save_folder):
     Path(save_folder_crit).mkdir(parents=True, exist_ok=True)
     critical, _ = res.obtain_archive().divide_critical_non_critical()
     critical = duplicate_free(critical)
-    
     output_subplots_digits(critical.get("DIG"), 
                     title="Critical Digits",
                     filename="critical_all.png", 

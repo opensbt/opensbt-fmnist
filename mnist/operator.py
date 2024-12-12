@@ -1,47 +1,11 @@
-from dataclasses import dataclass
-from typing import Dict
-from pymoo.core.problem import Problem
 import numpy as np
-from mnist.archive import Archive
-from evaluation.critical import Critical
 from opensbt.evaluation.fitness import *
-import logging as log
 import sys
-import random
-from os.path import join
-from pathlib import Path
-# For Python 3.6 we use the base keras
-import keras
-from mnist.digit_mutator import DigitMutator
-# local imports
-from mnist import vectorization_tools
-from mnist.digit_input import Digit
-from mnist.exploration import Exploration
-from model_ga.population import PopulationExtended
-from mnist.config import NGEN, \
-    POPSIZE, EXPECTED_LABEL, INITIALPOP, \
-    ORIGINAL_SEEDS, BITMAP_THRESHOLD, FEATURES
-from math import ceil
-import string
-from numbers import Real
-import random
 import numpy as np
-from pymoo.core.problem import ElementwiseProblem
 from pymoo.core.sampling import Sampling
-from pymoo.core.crossover import Crossover
-from pymoo.core.mutation import Mutation
 import string
-from pymoo.algorithms.moo.nsga2 import NSGA2
-from pymoo.optimize import minimize
-from pymoo.core.duplicate import ElementwiseDuplicateElimination
-from pymoo.core.crossover import Crossover
-from pymoo.core.variable import Real, get
-from pymoo.util.misc import row_at_least_once_true
-from pymoo.core.crossover import Crossover
-from pymoo.core.population import Population
-from pymoo.util.misc import crossover_mask
 from mnist.mnist_problem import MNISTProblem
-from mnist import mnist_simulation
+from mnist import mutations
 
 class MnistSamplingValid(Sampling):
 
@@ -96,7 +60,7 @@ class MnistSamplingValid(Sampling):
             c_index):
         print("Generating new digit by mutation.")
         new_digit = digit.clone()
-        new_digit = mnist_simulation.apply_mutation_index(problem,
+        new_digit = mutations.apply_mutation_index(problem,
                                                           new_digit,
                                                             extent_1=extent_1,
                                                             extent_2=extent_2,
@@ -115,7 +79,7 @@ class MnistSamplingValid(Sampling):
             c_index_2):
         print("Generating new digit by mutation.")
         new_digit = digit.clone()
-        new_digit = mnist_simulation.apply_mutation_index_bi(
+        new_digit = mutations.apply_mutation_index_bi(
                             problem,
                             new_digit,
                             extent_1=extent_1,

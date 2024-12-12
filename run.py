@@ -27,6 +27,7 @@ import os
 import sys
 from default_experiments import *
 from default_experiments_fmnist import *
+from default_experiments_mnist import *
 
 from opensbt.experiment.experiment_store import experiments_store
 from opensbt.utils.log_utils import *
@@ -192,7 +193,7 @@ if __name__ == "__main__":
         raise ValueError("Error: No algorithm with the given code: " + str(algorithm))
 
     res = optimizer.run()
-    print(type(res.opt.get("SO")[0]))
+
     res.write_results(results_folder=results_folder, params = optimizer.parameters)
 
     log.info("====== Algorithm search time: " + str("%.2f" % res.exec_time) + " sec")

@@ -1,19 +1,17 @@
 from dataclasses import dataclass
-from math import ceil
 from typing import Dict
-from pymoo.core.problem import Problem
 import numpy as np
+from fmnist import fmnist_simulation
 from opensbt.evaluation.critical import Critical
 from opensbt.evaluation.fitness import *
 import logging as log
 from os.path import join
 from pathlib import Path
-# For Python 3.6 we use the base keras
-import keras
+
 from mnist import utils_mnist
 from mnist.utils import string_utils
-from fmnist import fmnist_simulation
 from typing import List
+from pymoo.core.problem import Problem
 
 @dataclass
 class FMNISTProblem(Problem):
@@ -21,7 +19,7 @@ class FMNISTProblem(Problem):
     def __init__(self,
                  xl: List[float], 
                  xu: List[float], 
-                 simulate_function,
+                 simulate_function, # the MnistSimulator
                  fitness_function: Fitness, 
                  critical_function: Critical, 
                  simulation_variables: List[float], 

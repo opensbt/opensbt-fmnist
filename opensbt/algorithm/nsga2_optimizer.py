@@ -1,27 +1,13 @@
 import pymoo
 
-from opensbt.model_ga.individual import IndividualSimulated
-pymoo.core.individual.Individual = IndividualSimulated
-
-from opensbt.model_ga.population import PopulationExtended
-pymoo.core.population.Population = PopulationExtended
-
-from opensbt.model_ga.result  import SimulationResult
-pymoo.core.result.Result = SimulationResult
-
-from opensbt.model_ga.problem import SimulationProblem
-pymoo.core.problem.Problem = SimulationProblem
-
 from opensbt.utils.operators import select_operator
 from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
-from pymoo.operators.crossover.sbx import SBX
-from pymoo.operators.mutation.pm import PM
-from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.termination import get_termination
 from opensbt.algorithm.optimizer import Optimizer
 from opensbt.experiment.search_configuration import SearchConfiguration
 from opensbt.utils.archive import MemoryArchive
+from pymoo.core.problem import Problem
 
 class NsgaIIOptimizer(Optimizer):
     """ This optimizer class provides the NSGA-II algorithm which is already implemented in pymoo.
@@ -30,7 +16,7 @@ class NsgaIIOptimizer(Optimizer):
     algorithm_name = "NSGA-II"
 
     def __init__(self,
-                problem: SimulationProblem,
+                problem: Problem,
                 config: SearchConfiguration):
         self.config = config
         self.problem = problem
@@ -51,13 +37,13 @@ class NsgaIIOptimizer(Optimizer):
         }
 
         self.algorithm = NSGA2(
-            pop_size=config.population_size,
-            n_offsprings=config.num_offsprings,
+            pop_size = config.population_size,
+            n_offsprings = config.num_offsprings,
             sampling = select_operator("init", config),
             crossover = select_operator("cx", config),
             mutation = select_operator("mut", config),
             eliminate_duplicates = select_operator("dup", config),
-            archive=MemoryArchive()
+            archive = MemoryArchive()
         )
 
         ''' Prioritize max search time over set maximal number of generations'''

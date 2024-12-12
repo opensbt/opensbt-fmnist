@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from math import ceil
 from typing import Dict
 import numpy as np
 from opensbt.evaluation.critical import Critical
@@ -7,8 +6,7 @@ from opensbt.evaluation.fitness import *
 import logging as log
 from os.path import join
 from pathlib import Path
-# For Python 3.6 we use the base keras
-import keras
+
 from mnist import utils_mnist
 from mnist.utils import string_utils
 from mnist import mnist_simulation
@@ -148,7 +146,6 @@ class MNISTProblem(Problem):
         out["F"] = np.vstack(vector_list)
         out["CB"] = label_list
         out["DIG"] = digits
-        print(type(out["DIG"]))
         
     def is_simulation(self):
         return False

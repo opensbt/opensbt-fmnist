@@ -1,19 +1,14 @@
-import sys
 from typing import List, Dict
+from fmnist.fmnist_loader import fmnist_loader
 from mnist import features, vectorization_tools
 from fmnist import predictor
 from mnist.digit_input import Digit
-from mnist.digit_mutator import DigitMutator
 from mnist.config import EXPECTED_LABEL
 from opensbt.simulation.simulator import Simulator, SimulationOutput
-import logging
 import json
-import os
 from scipy.stats import entropy
-from pathlib import Path
 import numpy as np
 import logging as log
-from fmnist.fmnist_loader import fmnist_loader
 from mnist.mutations import *
 
 class FMnistSimulator(Simulator):

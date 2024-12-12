@@ -1,37 +1,20 @@
-import pymoo
-import sys
-
-from opensbt.model_ga.individual import IndividualSimulated
-pymoo.core.individual.Individual = IndividualSimulated
-
-from opensbt.model_ga.population import PopulationExtended
-pymoo.core.population.Population = PopulationExtended
-
-from opensbt.model_ga.result  import SimulationResult
-pymoo.core.result.Result = SimulationResult
-
-from opensbt.model_ga.problem import SimulationProblem
-pymoo.core.problem.Problem = SimulationProblem
-
+import os
 from opensbt.evaluation.fitness import *
-from opensbt.evaluation import critical
-
+from opensbt.algorithm.algorithm import AlgorithmType
 from opensbt.experiment.search_configuration import DefaultSearchConfiguration
-from fmnist.fmnist_problem import FMNISTProblem
 from opensbt.experiment.experiment import *
 from opensbt.algorithm.algorithm import *
 from opensbt.evaluation.critical import *
-from mnist.mnist_problem import *
+from fmnist.fmnist_problem import *
 from mnist.fitness_mnist import *
-from fmnist.critical_fmnist import CriticalFMNIST
-from mnist.utils_mnist import get_number_segments, get_number_verts
+from mnist.utils_mnist import get_number_verts
+from fmnist.operator_fmnist import FMnistSamplingValid
 import copy
 from opensbt.config import *
 from fmnist.fmnist_simulation import FMnistSimulator, get_seeds_class
-from fmnist import fmnist_simulation
-from fmnist.operator_fmnist import FMnistSamplingValid
-from mnist.config import EXPECTED_LABEL
 from opensbt.experiment.experiment_store import experiments_store
+from fmnist.critical_fmnist import CriticalFMNIST
+from mnist.config import EXPECTED_LABEL
 
 """ FMNIST Problem with single seed
 

@@ -1,29 +1,10 @@
-import pymoo
-
-from opensbt.model_ga.individual import IndividualSimulated
-pymoo.core.individual.Individual = IndividualSimulated
-
-from opensbt.model_ga.population import PopulationExtended
-pymoo.core.population.Population = PopulationExtended
-
-from opensbt.model_ga.result  import SimulationResult
-pymoo.core.result.Result = SimulationResult
-
-from opensbt.model_ga.problem import SimulationProblem
-pymoo.core.problem.Problem = SimulationProblem
-
-import sys
 from typing import List
-from mnist import mnist_loader
 from mnist import features, predictor, vectorization_tools
 from mnist.digit_input import Digit
 from mnist.config import EXPECTED_LABEL
 from opensbt.simulation.simulator import Simulator, SimulationOutput
-import logging
 import json
-import os
 from scipy.stats import entropy
-from pathlib import Path
 import numpy as np
 import logging as log
 from mnist.mnist_loader import mnist_loader
