@@ -115,7 +115,7 @@ def getExp201() -> Experiment:
 
     experiment = Experiment(name="201",
                             problem=problem,
-                            algorithm=AlgorithmType.NSGAII,
+                            algorithm=AlgorithmType.NSGAII_D,
                             search_configuration=config)
     return experiment
 

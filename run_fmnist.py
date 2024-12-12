@@ -1,7 +1,15 @@
+import pymoo
 
+from opensbt.model_ga.individual import IndividualSimulated
+pymoo.core.individual.Individual = IndividualSimulated
+
+from opensbt.model_ga.population import PopulationExtended
+pymoo.core.population.Population = PopulationExtended
+
+from opensbt.model_ga.problem import SimulationProblem
+pymoo.core.problem.Problem = SimulationProblem
 
 from fmnist.critical_fmnist import CriticalFMNIST
-from opensbt.algorithm.nsga2_optimizer import NsgaIIOptimizer
 from opensbt.evaluation.fitness import *
 from opensbt.experiment.search_configuration import DefaultSearchConfiguration
 from opensbt.experiment.experiment import *
@@ -9,6 +17,7 @@ from opensbt.algorithm.algorithm import *
 from opensbt.evaluation.critical import *
 from opensbt.config import *
 from opensbt.config import RESULTS_FOLDER as results_folder
+from opensbt.algorithm.nsga2d_optimizer import NSGAIIDOptimizer
 
 from fmnist.fmnist_problem import FMNISTProblem
 from mnist.fitness_mnist import *
@@ -60,8 +69,8 @@ ub_vert = vertex_num -1
 
 ''' MNIST Problem with single seed'''
 config = DefaultSearchConfiguration()
-config.population_size = 10
-config.n_generations =  10
+config.population_size = 5
+config.n_generations =  5
 config.operators["init"] = FMnistSamplingValid
 
 ###########################
@@ -110,7 +119,7 @@ fmnistproblem = FMNISTProblem(
 #                         )
 
 fmnistproblem.problem_name = fmnistproblem.problem_name+ "_NSGA-II-DJ" + f"_D{seed}" 
-optimizer = NsgaIIOptimizer(
+optimizer = NSGAIIDOptimizer(
     problem=fmnistproblem,
     config=config)
 

@@ -89,7 +89,7 @@ def getExp1000() -> Experiment:
 
     experiment = Experiment(name="1000",
                             problem=problem,
-                            algorithm=AlgorithmType.NSGAII,
+                            algorithm=AlgorithmType.NSGAII_D,
                             search_configuration=config)
     return experiment
 

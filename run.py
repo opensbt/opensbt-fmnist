@@ -20,6 +20,7 @@ from opensbt.algorithm.nsga2_optimizer import *
 from opensbt.algorithm.pso_optimizer import *
 from opensbt.algorithm.algorithm import AlgorithmType
 from opensbt.algorithm.nsga2dt_optimizer import NsgaIIDTOptimizer
+from opensbt.algorithm.nsga2d_optimizer import NSGAIIDOptimizer
 
 import argparse
 import logging as log
@@ -187,6 +188,11 @@ if __name__ == "__main__":
     elif algorithm == AlgorithmType.NSGAII_DT:
         log.info("NSGAII_DT algorithm is used.")
         optimizer = NsgaIIDTOptimizer(
+                              problem=problem,
+                              config=config)
+    elif algorithm == AlgorithmType.NSGAII_D:
+        log.info("NSGAII_DT algorithm is used.")
+        optimizer = NSGAIIDOptimizer(
                               problem=problem,
                               config=config)
     else:

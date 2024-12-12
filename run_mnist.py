@@ -1,5 +1,6 @@
 
 from opensbt.algorithm.nsga2_optimizer import NsgaIIOptimizer
+from opensbt.algorithm.nsga2d_optimizer import NSGAIIDOptimizer
 from opensbt.evaluation.fitness import *
 from opensbt.experiment.search_configuration import DefaultSearchConfiguration
 from opensbt.experiment.experiment import *
@@ -86,7 +87,7 @@ mnistproblem.set_fitness_function(FitnessMNIST(diversify=True))
 mnistproblem.critical_function=CriticalMNISTConf_05()
 mnistproblem.problem_name = mnistproblem.problem_name+ "_NSGA-II-DJ" + f"_D{seed}" 
 
-optimizer = NsgaIIOptimizer(
+optimizer = NSGAIIDOptimizer(
     problem=mnistproblem,
     config=config)
 
