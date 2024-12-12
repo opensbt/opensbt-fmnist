@@ -1,3 +1,18 @@
+import pymoo
+import sys
+
+from opensbt.model_ga.individual import IndividualSimulated
+pymoo.core.individual.Individual = IndividualSimulated
+
+from opensbt.model_ga.population import PopulationExtended
+pymoo.core.population.Population = PopulationExtended
+
+from opensbt.model_ga.result  import SimulationResult
+pymoo.core.result.Result = SimulationResult
+
+from opensbt.model_ga.problem import SimulationProblem
+pymoo.core.problem.Problem = SimulationProblem
+
 from pymoo.operators.crossover.sbx import SBX # type: ignore
 from pymoo.operators.mutation.pm import PM # type: ignore
 from pymoo.operators.sampling.lhs import LHS # type: ignore

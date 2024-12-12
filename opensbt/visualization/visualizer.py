@@ -10,8 +10,6 @@ from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from matplotlib.legend_handler import HandlerPatch
 from opensbt.visualization import scenario_plotter
-from pymoo.indicators.igd import IGD
-from pymoo.indicators.hv import Hypervolume
 from pymoo.core.population import Population
 from opensbt.visualization.configuration import *
 from opensbt.utils.sorting import *
@@ -264,6 +262,7 @@ def design_space(res, save_folder, classification_type=ClassificationType.DT, it
     xu = problem.xu
 
     all_population = res.obtain_archive()
+
     critical_all, _ = all_population.divide_critical_non_critical()
 
     if classification_type == ClassificationType.DT:
