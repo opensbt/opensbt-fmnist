@@ -208,8 +208,7 @@ class NSGA2D(GeneticAlgorithm):
             evaluate_individuals(population=pop_sampled, problem=self.problem, **kwargs)
                  
             # Add to archive of all evaluated
-            for ind in pop_sampled:
-                self.archive.add(ind)
+            self.archive = self.archive.add(pop_sampled)
 
             for i in range(1, n_repopulate + 1):
                 pop_sorted[-i] = pop_sampled[-i]
