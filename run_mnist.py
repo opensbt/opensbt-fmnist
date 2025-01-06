@@ -16,12 +16,15 @@ from mnist.mnist_simulation import MnistSimulator
 from opensbt.config import RESULTS_FOLDER as results_folder
 
 """ MNIST Testing with single seed mutation 
-
 """
+import random
+random.seed(42)
+import numpy as np
+np.random.seed(42)
 
 config = DefaultSearchConfiguration()
-config.population_size = 2
-config.n_generations =  2
+config.population_size = 20
+config.n_generations =  20
 
 ### pass here custom operators ####
 
