@@ -106,7 +106,7 @@ If you like to contribute please contact one of the developers listed below or c
 <img align="right" src="https://www.fortiss.org/fileadmin/user_upload/06_Ergebnisse/Informationsmaterialien/Logo_fortiss_RGB_blue.png" width="108"/>
 
 OpenSBT has been developed by [Lev Sorokin](mailto:lev.sorokin@tum.de), [Tiziano Munaro](mailto:munaro@fortiss.org) and [Damir Safin](mailto:safin@fortiss.org) within the 
-[FOCETA Project](https://www.foceta-project.eu/tools/) at [http://fortiss.org](https://www.fortiss.org/). Special thanks go to [Brian Hsuan-Cheng Liao](mailto:h.liao@eu.denso.com) and Adam Molin from [DENSO AUTOMOTIVE Deutschland GmbH](https://www.denso.com/de/de/about-us/company-information/dnde/) for their valuable feedback and evaluation of OpenSBT on the AVP Case Study in the Prescan simulator.
+[FOCETA Project](https://www.foceta-project.eu/tools/) at [fortiss GmbH](https://www.fortiss.org/). Special thanks go to [Brian Hsuan-Cheng Liao](mailto:h.liao@eu.denso.com) and Adam Molin from [DENSO AUTOMOTIVE Deutschland GmbH](https://www.denso.com/de/de/about-us/company-information/dnde/) for their valuable feedback and evaluation of OpenSBT on the AVP Case Study in the Prescan simulator.
 
 
 
