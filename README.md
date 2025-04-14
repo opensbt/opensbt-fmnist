@@ -41,6 +41,4 @@ python run.py -e 201
 
 To see an example experiment definition without flag based execution check out ```run_fmnist.py```.
 
-## Authors
-
 Lev Sorokin (lev.sorokin@tum.de)

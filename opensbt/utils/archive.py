@@ -1,5 +1,5 @@
 from pymoo.util.archive import Archive
-from pymoo.core.population import Population, merge
+from pymoo.core.population import merge
 
 # Stores all individuals added to the archive
 class MemoryArchive(Archive):
