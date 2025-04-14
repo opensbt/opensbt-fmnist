@@ -37,7 +37,11 @@ class SearchConfiguration(object):
     custom_params = {  # to be forwarded to operators
         
     }
-
+    
+    n_repopulate_max = None
+    archive_threshold = None
+    mode_processing = None
+    
 class DefaultSearchConfiguration(SearchConfiguration):
     """ This class holds all configuration parameter initialized with default values 
     """
@@ -73,3 +77,9 @@ class DefaultSearchConfiguration(SearchConfiguration):
     custom_params = {  # to be forwarded to operators
         
     }
+    
+    # NSGA-II-D Parameters
+    n_repopulate_max = 0.3    
+    archive_threshold = 5
+    mode_processing = 2
+    

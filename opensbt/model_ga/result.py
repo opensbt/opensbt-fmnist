@@ -1,8 +1,22 @@
 import numpy as np
-from pymoo.core.result import Result
+import pymoo
+from opensbt.model_ga.individual import IndividualSimulated
+pymoo.core.individual.Individual = IndividualSimulated
+
+from opensbt.model_ga.population import PopulationExtended
+pymoo.core.population.Population = PopulationExtended
+
+from opensbt.model_ga.problem import SimulationProblem
+pymoo.core.problem.Problem = SimulationProblem
+
+from fmnist.fmnist_problem import FMNISTProblem
+from mnist import output_mnist
 from opensbt import config
-from opensbt.model_ga.population import PopulationExtended as Population
 from opensbt.utils.sorting import get_nondominated_population
+
+from pymoo.core.result import Result
+from pymoo.core.population import Population
+
 import dill
 import os
 from pathlib import Path
@@ -227,4 +241,18 @@ class SimulationResult(Result):
                     write_max = config.NUM_GIF_MAX)
         if WRITE_ALL_INDIVIDUALS:
             visualizer.all_individuals(self, save_folder)
-        
+
+        # Write MNIST specific results
+        from mnist.mnist_problem import MNISTProblem
+
+        if type(self.problem) == MNISTProblem or type(self.problem) == FMNISTProblem:
+            print("Exporting inputs ...")
+            # output_mnist.output_optimal_digits(res, save_folder)
+            # output_mnist.output_explored_digits(res, save_folder)
+            # output_mnist.output_critical_digits(res, save_folder)
+            output_mnist.output_critical_digits_all(self, save_folder)
+            output_mnist.output_seed_digits(self, save_folder)
+            output_mnist.output_optimal_digits_all(self, save_folder)
+            output_mnist.output_seed_digits_all(self, save_folder)
+            # output_mnist.output_summary(res, save_folder)
+            output_mnist.write_generations_digit(self, save_folder)

@@ -37,7 +37,7 @@ from flask import Flask
 
 from examples.lanekeeping.udacity.envs.udacity.config import INPUT_DIM
 
-from config import MAX_XTE as MAX_CTE_ERROR
+from opensbt.config import MAX_XTE as MAX_CTE_ERROR
 from examples.lanekeeping.udacity.envs.udacity.core.client import start_app
 from examples.lanekeeping.udacity.global_log import GlobalLog
 from examples.lanekeeping.udacity.driving.road import Road

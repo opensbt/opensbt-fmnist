@@ -1,4 +1,5 @@
 import pymoo
+import sys
 
 from opensbt.model_ga.individual import IndividualSimulated
 pymoo.core.individual.Individual = IndividualSimulated
@@ -19,14 +20,17 @@ from opensbt.algorithm.nsga2_optimizer import *
 from opensbt.algorithm.pso_optimizer import *
 from opensbt.algorithm.algorithm import AlgorithmType
 from opensbt.algorithm.nsga2dt_optimizer import NsgaIIDTOptimizer
+from opensbt.algorithm.nsga2d_optimizer import NSGAIIDOptimizer
 
 import argparse
 import logging as log
 import os
 import sys
+from default_experiments import *
+from default_experiments_fmnist import *
+from default_experiments_mnist import *
 
 from opensbt.experiment.experiment_store import experiments_store
-from default_experiments import *
 from opensbt.utils.log_utils import *
 from opensbt.config import RESULTS_FOLDER, LOG_FILE
 
@@ -186,10 +190,16 @@ if __name__ == "__main__":
         optimizer = NsgaIIDTOptimizer(
                               problem=problem,
                               config=config)
+    elif algorithm == AlgorithmType.NSGAII_D:
+        log.info("NSGAII_DT algorithm is used.")
+        optimizer = NSGAIIDOptimizer(
+                              problem=problem,
+                              config=config)
     else:
         raise ValueError("Error: No algorithm with the given code: " + str(algorithm))
 
     res = optimizer.run()
+
     res.write_results(results_folder=results_folder, params = optimizer.parameters)
 
     log.info("====== Algorithm search time: " + str("%.2f" % res.exec_time) + " sec")

@@ -9,3 +9,4 @@ class AlgorithmType(Enum):
     PS_GRID = 4 
     PS_FPS = 5
     NSGAII_DT = 6
+    NSGAII_D = 7
