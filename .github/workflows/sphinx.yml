@@ -9,6 +9,10 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.8"  # Specify the desired Python version
     - name: Set PYTHONPATH
       run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
     - name: Verify PYTHONPATH and Contents
@@ -18,6 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
+        pip install --upgrade setuptools
         pip install -r requirements.txt
         pip install -r docs/requirements.txt
     - name: Build HTML

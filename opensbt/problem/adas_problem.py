@@ -120,6 +120,7 @@ class ADASProblem(Problem):
         self.counter = self.counter + 1
         log.info(f"Running evaluation number {self.counter}")
         try:
+            # it is assumed that the i-th simout in the simout list correponds to i-th scenario in the list x
             simout_list = self.simulate_function(x, 
                                                  self.simulation_variables, 
                                                  self.scenario_path, 
