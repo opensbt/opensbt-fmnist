@@ -23,8 +23,8 @@ import numpy as np
 np.random.seed(42)
 
 config = DefaultSearchConfiguration()
-config.population_size = 20
-config.n_generations =  20
+config.population_size = 10
+config.n_generations =  10
 
 ### pass here custom operators ####
 
