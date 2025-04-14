@@ -5,8 +5,14 @@ This repository integrates the MNIST and Fashion-MNIST case study into OpenSBT a
 
 ## Preliminaries
 
-Follow the installation instruction of OpenSBT in the [main repository](https://github.com/opensbt/opensbt-core). Install MNIST related dependencies by following the instructions [here](https://github.com/testingautomated-usi/deepjanus/blob/master/DeepJanus-MNIST/FULL_INSTALL.md
-).
+Follow the installation instruction of OpenSBT in the [main repository](https://github.com/opensbt/opensbt-core). Install cairo related dependencies by following the instructions [here](https://github.com/testingautomated-usi/deepjanus/blob/master/DeepJanus-MNIST/FULL_INSTALL.md
+). 
+Install afterwards further MNIST related dependencies using:
+
+```bash
+pip install -r mnist/requirements.txt
+```
+
 
 ## Problem Definition
 
